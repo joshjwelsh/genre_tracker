@@ -25,16 +25,15 @@ class DBManager:
 		except psycopg2.Error as e:
 			print("Error executing query:", e)
 	
-	def insert(self, ingested_tracklist):
+	def insert(self, ingested_track):
 		# Define a query to execute
-		metadata = ingested_tracklist.metadata
+		metadata = ingested_track.metadata
 		blob = json.dumps(metadata)
-		query = f"""INSERT INTO ingested_tracks (title, user_id, timestamp, added_at, artist, album, source, metadata, uri) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);"""
-
+		query = f"""INSERT INTO ingested_tracks (title, artist, album, album_id, title_id, artist_id, metadata, source, timestamp, ingested_at, uri, user_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s ,%s, %s);"""
 
 		try:
 			cur = self.conn.cursor()
-			cur.execute(query, (ingested_tracklist.title, JOSH_UUID, ingested_tracklist.timestamp, ingested_tracklist.added_at, ingested_tracklist.artist, ingested_tracklist.album, ingested_tracklist.source, blob, ingested_tracklist.uri))
+			cur.execute(query, (ingested_track.title, ingested_track.artist, ingested_track.album, ingested_track.album_id, ingested_track.title_id, ingested_track.artist_id, blob, ingested_track.source, ingested_track.timestamp, ingested_track.ingested_at, ingested_track.uri, JOSH_UUID))
 			self.conn.commit()
 			print("Query executed successfully!")
 		except psycopg2.Error as e:
