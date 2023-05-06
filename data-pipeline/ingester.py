@@ -2,22 +2,25 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from datetime import datetime
 from db import DBManager
-
+from env import CLIENT_ID, CLIENT_SECRET
 # Replace these values with your own credentials
-client_id = "bdf42dbf94f6444e90cccb0c6da0360a"
-client_secret = "0a5ece4316504b12827fd266330b8be3"
+client_id = CLIENT_ID
+client_secret = CLIENT_SECRET
 redirect_uri = "http://localhost:4000/callback"
 
 class IngestedTrack:
-    def __init__(self, title, timestamp, added_at, artist, album, source, metadata, uri):
+    def __init__(self, uri, title, artist, album, album_id, title_id, artist_id, metadata, source, timestamp, ingested_at):
         self.title = title
-        self.timestamp = timestamp
-        self.added_at = added_at
         self.artist = artist
         self.album = album
-        self.source = source
+        self.album_id = album_id
+        self.title_id = title_id
+        self.artist_id = artist_id
         self.metadata = metadata
-        self.uri = uri
+        self.source = source
+        self.timestamp = timestamp
+        self.ingested_at = ingested_at
+        self.uri = uri  
 
     def __repr__(self):
         return f"{self.name} by {self.artist} from {self.source}"
@@ -55,13 +58,16 @@ def print_liked_songs():
             track = item["track"]
             print(f"{track['name']}")
             title = track['name']
-            added_at = datetime.now()
+            ingested_at = datetime.now()
             artist = track['artists'][0]['name']
+            artist_id = track['artists'][0]['id']
             album = track['album']['name']
+            album_id = track['album']['id']
+            title_id = track['id']
             source = 'spotify'
             metadata = track 
             uri = track['uri']
-            ingested_track = IngestedTrack(title, timestamp, added_at, artist, album, source, metadata, uri)
+            ingested_track = IngestedTrack(uri, title, artist, album, album_id, title_id, artist_id, metadata, source, timestamp, ingested_at)
             db = DBManager()
             db.insert(ingested_track)
 
