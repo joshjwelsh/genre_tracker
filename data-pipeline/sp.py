@@ -3,6 +3,7 @@ from spotipy.oauth2 import SpotifyOAuth
 from datetime import datetime
 from db import DBManager
 from env import CLIENT_ID, CLIENT_SECRET
+
 # Replace these values with your own credentials
 client_id = CLIENT_ID
 client_secret = CLIENT_SECRET
@@ -39,8 +40,13 @@ sp = spotipy.Spotify(
     )
 )
 
+def get_artist_genre(artist_id):
+    artist = sp.artist(artist_id)
+    return ', '.join(artist['genres'])
+
+
 # Function to fetch and print liked songs
-def print_liked_songs():
+def collect_songs():
     # Initialize the offset for pagination
     offset = 0
 
@@ -56,7 +62,6 @@ def print_liked_songs():
         for item in results["items"]:
             timestamp = item["added_at"]
             track = item["track"]
-            print(f"{track['name']}")
             title = track['name']
             ingested_at = datetime.now()
             artist = track['artists'][0]['name']
@@ -71,10 +76,7 @@ def print_liked_songs():
             db = DBManager()
             db.insert(ingested_track)
 
-        
 
         # Increment the offset for the next batch of songs
         offset += len(results["items"])
 
-# Call the function to print liked songs
-print_liked_songs()
